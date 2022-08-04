@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
 import javax.servlet.http.HttpSession;
@@ -129,7 +130,21 @@ public class OrderController {
         session.setAttribute("list_cart_session", cartService.get_list_cart_by_user(user));
 
         //重定向到支付服务，传入订单号和交易金额
-        return "redirect:/goto_pay.do";
+//        return "redirect:/goto_pay.do";  //伪支付
+        return "realPay";
+    }
+
+    @RequestMapping("real_pay_success")
+    @ResponseBody
+    public String real_pay_success(@ModelAttribute("order")OBJECT_T_MALL_ORDER order){
+        //支付完成
+        try {
+            orderService.pay_success(order);
+        }catch (OverSaleException e){
+            e.printStackTrace();
+            return "success";
+        }
+        return "success";
     }
 
     @RequestMapping("pay_success")
@@ -163,7 +178,7 @@ public class OrderController {
     private BigDecimal getSum(List<T_MALL_SHOPPINGCAR> list_cart) {
         BigDecimal sum = new BigDecimal("0");
         for (int i = 0; i < list_cart.size(); i++) {
-            if (list_cart.get(i).getShfxz().equals("1")) {
+            if (("1").equals(list_cart.get(i).getShfxz())) {
                 sum = sum.add(new BigDecimal(list_cart.get(i).getHj() + ""));
             }
         }

@@ -30,7 +30,7 @@ public class CartController {
 
     @RequestMapping("change_shfxz")
     public String change_shfxz(@CookieValue(value = "list_cart_cookie", required = false) String list_cart_cookie,
-                                 T_MALL_SHOPPINGCAR cart,HttpSession session, HttpServletResponse response, ModelMap map){
+                               T_MALL_SHOPPINGCAR cart, HttpSession session, HttpServletResponse response, ModelMap map) {
         List<T_MALL_SHOPPINGCAR> list_cart = new ArrayList<>();
         //获取用户
         T_MALL_USER_ACCOUNT user = (T_MALL_USER_ACCOUNT) session.getAttribute("user");
@@ -61,38 +61,38 @@ public class CartController {
 //        }
 
         //购物车修改业务
-        if (user == null){
+        if (user == null) {
             //修改cookie
-            list_cart = MyJsonUtil.json_to_list(list_cart_cookie,T_MALL_SHOPPINGCAR.class);
-        }else {
+            list_cart = MyJsonUtil.json_to_list(list_cart_cookie, T_MALL_SHOPPINGCAR.class);
+        } else {
             //修改db
             list_cart = (List<T_MALL_SHOPPINGCAR>) session.getAttribute("list_cart_session");
         }
 
         for (int i = 0; i < list_cart.size(); i++) {
-            if (list_cart.get(i).getSku_id() == cart.getSku_id()){
+            if (list_cart.get(i).getSku_id() == cart.getSku_id()) {
                 list_cart.get(i).setShfxz(cart.getShfxz());
-                if (user == null){
+                if (user == null) {
                     //覆盖cookie
                     Cookie cookie = new Cookie("list_cart_cookie", MyJsonUtil.list_to_json(list_cart));
-                    cookie.setMaxAge(60*60*24);
+                    cookie.setMaxAge(60 * 60 * 24);
                     response.addCookie(cookie);
-                }else {
+                } else {
                     cartService.update_cart(list_cart.get(i));
                 }
             }
         }
 
-        map.put("sum",getSum(list_cart));
-        map.put("list_cart",list_cart);
+        map.put("sum", getSum(list_cart));
+        map.put("list_cart", list_cart);
         return "cartListInner";
     }
 
     private BigDecimal getSum(List<T_MALL_SHOPPINGCAR> list_cart) {
         BigDecimal sum = new BigDecimal("0");
         for (int i = 0; i < list_cart.size(); i++) {
-            if (("1").equals(list_cart.get(i).getShfxz())){
-                sum = sum.add(new BigDecimal(list_cart.get(i).getHj()+""));
+            if (("1").equals(list_cart.get(i).getShfxz())) {
+                sum = sum.add(new BigDecimal(list_cart.get(i).getHj() + ""));
             }
         }
         return sum;
@@ -100,41 +100,41 @@ public class CartController {
 
     @RequestMapping("goto_cart_list")
     public String goto_cart_list(@CookieValue(value = "list_cart_cookie", required = false) String list_cart_cookie,
-                                 HttpSession session,  ModelMap map){
+                                 HttpSession session, ModelMap map) {
         List<T_MALL_SHOPPINGCAR> list_cart = new ArrayList<>();
         //获取用户
         T_MALL_USER_ACCOUNT user = (T_MALL_USER_ACCOUNT) session.getAttribute("user");
 
-        if (user == null){
+        if (user == null) {
             //未登录，cookie中获取
             list_cart = MyJsonUtil.json_to_list(list_cart_cookie, T_MALL_SHOPPINGCAR.class);
-        }else {
+        } else {
             //登录，session中获取购物车数据
             list_cart = (List<T_MALL_SHOPPINGCAR>) session.getAttribute("list_cart_session");
         }
 
-        map.put("sum",getSum(list_cart));
-        map.put("list_cart",list_cart);
+        map.put("sum", getSum(list_cart));
+        map.put("list_cart", list_cart);
         return "cartList";
     }
 
     @RequestMapping("miniCart")
     public String miniCart(@CookieValue(value = "list_cart_cookie", required = false) String list_cart_cookie,
-                           HttpSession session,  ModelMap map){
+                           HttpSession session, ModelMap map) {
 
         List<T_MALL_SHOPPINGCAR> list_cart = new ArrayList<>();
         //获取用户
         T_MALL_USER_ACCOUNT user = (T_MALL_USER_ACCOUNT) session.getAttribute("user");
 
-        if (user == null){
+        if (user == null) {
             //未登录，cookie中获取
             list_cart = MyJsonUtil.json_to_list(list_cart_cookie, T_MALL_SHOPPINGCAR.class);
-        }else {
+        } else {
             //登录，session中获取购物车数据
             list_cart = (List<T_MALL_SHOPPINGCAR>) session.getAttribute("list_cart_session");
         }
 
-        map.put("list_cart",list_cart);
+        map.put("list_cart", list_cart);
         return "miniCartList";
     }
 

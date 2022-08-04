@@ -28,22 +28,20 @@ public class ListServiceImpl implements ListService {
     @Override
     public List<OBJECT_T_MALL_SKU> get_list_by_attr(List<T_MALL_SKU_ATTR_VALUE> list_attr, int flbh2) {
 
-        StringBuffer subSql = new StringBuffer();
+        StringBuffer subSql = new StringBuffer("");
 
         //根据属性集合动态拼接条件过滤的sql语句
-        subSql.append(" and sku.id in ( select sku0.sku_id from");
+        subSql.append(" and sku.id in ( select sku0.sku_id from ");
 
         if (list_attr != null && list_attr.size() > 0) {
-
             for (int i = 0; i < list_attr.size(); i++) {
-                subSql.append(" ( select sku_id from t_mall_sku_attr_value where shxm_id =" + list_attr.get(i).getShxm_id()
-                        + " and shxzh_id = " + list_attr.get(i).getShxzh_id() + ") sku" + i + "");
+                subSql.append(" ( select sku_id from t_mall_sku_attr_value where shxm_id = " + list_attr.get(i).getShxm_id()
+                        + " and shxzh_id = " + list_attr.get(i).getShxzh_id() + ") sku" + i + " ");
 
                 if ((i + 1) < list_attr.size() && list_attr.size() > 1) {
                     subSql.append(" , ");
                 }
             }
-
             if (list_attr.size() > 1) {
                 subSql.append(" where ");
 
@@ -60,12 +58,12 @@ public class ListServiceImpl implements ListService {
 
         }
 
-        subSql.append(")");
+        subSql.append(" ) ");
 
         HashMap<Object, Object> hashMap = new HashMap<Object, Object>();
         hashMap.put("flbh2", flbh2);
         // hashMap.put("list_attr",list_attr);
-        hashMap.put("subSql", subSql);
+        hashMap.put("subSql", subSql.toString());
 
         List<OBJECT_T_MALL_SKU> list_sku = listMapper.select_list_by_attr(hashMap);
 

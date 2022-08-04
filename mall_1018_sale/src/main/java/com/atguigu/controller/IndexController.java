@@ -1,7 +1,5 @@
 package com.atguigu.controller;
 
-import com.atguigu.bean.OBJECT_T_MALL_ATTR;
-import com.atguigu.bean.OBJECT_T_MALL_SKU;
 import com.atguigu.service.AttrService;
 import com.atguigu.service.ListService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author jian
@@ -38,24 +34,6 @@ public class IndexController {
         return "redirect:/goto_login.do";
     }
 
-    @RequestMapping("goto_list")
-    public String goto_list(int flbh2, ModelMap map){
-
-        List<OBJECT_T_MALL_ATTR> list_attr =new ArrayList<>();
-        List<OBJECT_T_MALL_SKU> list_sku = new ArrayList<>();
-
-        //flbh2属性 集合
-        list_attr = attrService.get_attr_list(flbh2);
-
-        //flbh2商品列表
-        list_sku = listService.get_list_by_flbh2(flbh2);
-
-        map.put("list_attr",list_attr);
-        map.put("list_sku",list_sku );
-        map.put("flbh2",flbh2);
-        return "list";
-
-    }
 
     @RequestMapping("goto_login")
     public String goto_login(){

@@ -18,8 +18,11 @@ public class LoginServiceImpl implements LoginService{
 
     @Override
     public T_MALL_USER_ACCOUNT login(T_MALL_USER_ACCOUNT user) {
-        //切换数据源1
+        //切换mybatis的数据源1
         MyRoutingDataSource.setKey("1");
+
+        //loginMapper.update_test();
+
         return loginMapper.select_user(user);
     }
 

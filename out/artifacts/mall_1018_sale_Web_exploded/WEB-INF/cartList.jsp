@@ -41,7 +41,7 @@
         <img src="./images/top_img.jpg" alt="">
     </div>
     <div class="search">
-        <div class="logo"><img src="./images/logo.jpg" alt=""></div>
+        <div class="logo"><a href="index.do"><img src="./images/logo.jpg" alt=""></a></div>
         <div class="search_on">
             <div class="se">
                 <input type="text" name="search" class="lf">

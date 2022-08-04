@@ -7,11 +7,13 @@
 <head>
     <base href="<%=basePath %>">
     <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/css.css">
+    <link rel="stylesheet" href="css/style.css">
     <title>$Title$</title>
     <script type="text/javascript">
 
         function save_param(shxm_id, shxzh_id, shx_mch) {
-            $("#paramArea").append("<input name='shxparam' type='text' value='{\"shxm_id\":" + shxm_id + ",\"shxzh_id\":" + shxzh_id + "}'>" + shx_mch);
+            $("#paramArea").append("<input name='shxparam' style='width:180px' type='text' value='{\"shxm_id\":" + shxm_id + ",\"shxzh_id\":" + shxzh_id + "}'>" + shx_mch);
             // alert("保存参数");
             //调用ajax异步请求
             get_list_by_attr();
@@ -41,16 +43,21 @@
     </script>
 </head>
 <body>
-<div id="paramArea">
-</div>
-<hr>
-属性列表:<br>
-<c:forEach items="${list_attr}" var="attr">
-    ${attr.shxm_mch}:
-    <c:forEach items="${attr.list_value}" var="val">
-        <a href="javascript:save_param(${attr.id},${val.id},'${val.shxzh}${val.shxzh_mch}');">${val.shxzh}${val.shxzh_mch}</a>
+
+    <jsp:include page="header.jsp"></jsp:include>
+
+    <jsp:include page="searchArea.jsp"></jsp:include>
+
+    <div id="paramArea">
+    </div>
+    <hr>
+    属性列表:<br>
+    <c:forEach items="${list_attr}" var="attr">
+        ${attr.shxm_mch}:
+        <c:forEach items="${attr.list_value}" var="val">
+            <a href="javascript:save_param(${attr.id},${val.id},'${val.shxzh}${val.shxzh_mch}');">${val.shxzh}${val.shxzh_mch}</a>
+        </c:forEach>
+        <br>
     </c:forEach>
-    <br>
-</c:forEach>
-</body>
+    </body>
 </html>

@@ -2,12 +2,18 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
 
        xsi:schemaLocation="
        http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd
        http://www.springframework.org/schema/context
-       http://www.springframework.org/schema/context/spring-context.xsd">
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx.xsd ">
 
     <context:property-placeholder
             location="classpath:dbConfig.properties,classpath:ws.properties"/>
@@ -34,6 +40,23 @@
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryBean"/>
     </bean>
 
+    <!-- 数据源事务管理器-->
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+    <!--通知 -->
+    <tx:advice transaction-manager="txManager" id="txAdvice">
+        <tx:attributes>
+            <tx:method name="*" propagation="REQUIRED" rollback-for="java.lang.Exception"/>
+        </tx:attributes>
+    </tx:advice>
+    <!--切入点表达式 -->
+    <aop:config>
+        <aop:pointcut id="pointcut" expression="execution(* com.atguigu.service.*.*(..))"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="pointcut" />
+    </aop:config>
+
+    <!-- webservice服务  -->
     <bean id="loginServer" class="com.atguigu.utils.MyWsFactoryBean">
         <property name="url" value="${login_url}"/>
         <property name="t" value="com.atguigu.server.LoginServer"/>
@@ -48,4 +71,5 @@
         <property name="url" value="${address_url}"/>
         <property name="t" value="com.atguigu.server.AddressServerInf"/>
     </bean>
+
 </beans>

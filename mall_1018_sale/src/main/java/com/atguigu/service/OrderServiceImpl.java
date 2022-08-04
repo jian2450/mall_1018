@@ -86,24 +86,16 @@ public class OrderServiceImpl implements OrderService {
             for (T_MALL_ORDER_INFO info : flow.getList_info()) {
                 //修改sku数据和销量等信息
 
-                //查询库存的业务
-                long kc = 0;
                 //判断库存警戒线
                 long count = orderMapper.select_count_kc(info.getSku_id());
-                Map<Object,Object> map = new HashMap<>();
-                map.put("count",count);
-                map.put("sku_id",info.getSku_id());
-                kc = orderMapper.select_kc(map);
 
-//                if (count == 0){
-//                    kc = 1; //执行锁sql
-//                }else {
-//                    kc = 1; //不执行锁sql
-//                }
-                if (kc >= info.getSku_shl()){// 先确定kc大于购买数量
+                //查询库存的业务
+                long kc = getKc(count, info.getSku_id());
+
+                if (kc >= info.getSku_shl()) {// 先确定kc大于购买数量
                     //对kc进行修改
                     orderMapper.update_kc(info);
-                }else {
+                } else {
                     throw new OverSaleException("over sale");
                 }
             }
@@ -111,5 +103,18 @@ public class OrderServiceImpl implements OrderService {
         //修改订单状态,出库
         order.setYjsdshj(MyDateUtil.getMyDate(3));
         orderMapper.update_order(order);
+    }
+
+    public long getKc(long count, int sku_id) {
+        Map<Object, Object> map = new HashMap<>();
+        map.put("count", count);
+        map.put("sku_id", sku_id);
+        long kc = orderMapper.select_kc(map);
+//                if (count == 0){
+//                    kc = 1; //执行锁sql
+//                }else {
+//                    kc = 1; //不执行锁sql
+//                }
+        return kc;
     }
 }
