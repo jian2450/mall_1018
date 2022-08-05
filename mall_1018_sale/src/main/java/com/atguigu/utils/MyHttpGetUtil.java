@@ -10,7 +10,7 @@ public class MyHttpGetUtil {
 
 	public static String doGet(String url) throws Exception {
 
-		// 创建Httpclient对象
+		// 创建Httpclient对象,像浏览器一样通过java代码像服务器发送http请求
 		CloseableHttpClient httpclient = HttpClients.createDefault();
 
 		// 创建http GET请求
