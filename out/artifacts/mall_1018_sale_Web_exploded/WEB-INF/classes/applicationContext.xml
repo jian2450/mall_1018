@@ -4,6 +4,7 @@
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:aop="http://www.springframework.org/schema/aop"
        xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
 
        xsi:schemaLocation="
        http://www.springframework.org/schema/beans
@@ -13,8 +14,12 @@
        http://www.springframework.org/schema/aop
        http://www.springframework.org/schema/aop/spring-aop.xsd
        http://www.springframework.org/schema/tx
-       http://www.springframework.org/schema/tx/spring-tx.xsd ">
+       http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://code.alibabatech.com/schema/dubbo
+       http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+       ">
 
+    <!-- 包扫描-->
     <context:property-placeholder
             location="classpath:dbConfig.properties,classpath:ws.properties"/>
 
@@ -23,6 +28,7 @@
         <context:include-filter type="annotation" expression="org.springframework.stereotype.Service"/>
     </context:component-scan>
 
+    <!--数据源 -->
     <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
         <property name="driverClassName" value="${driverClassName}"/>
         <property name="url" value="${url}"/>
@@ -30,6 +36,7 @@
         <property name="password" value="${jdbc.password}"/>
     </bean>
 
+    <!--mybatis -->
     <bean id="sqlSessionFactoryBean" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="dataSource"/>
         <property name="configLocation" value="classpath:mybatis-config.xml"/>
@@ -42,7 +49,7 @@
 
     <!-- 数据源事务管理器-->
     <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="dataSource"></property>
+        <property name="dataSource" ref="dataSource"/>
     </bean>
     <!--通知 -->
     <tx:advice transaction-manager="txManager" id="txAdvice">
@@ -62,14 +69,36 @@
         <property name="t" value="com.atguigu.server.LoginServer"/>
     </bean>
 
-    <bean id="TestServer" class="com.atguigu.utils.MyWsFactoryBean">
+    <bean id="testServer" class="com.atguigu.utils.MyWsFactoryBean">
         <property name="url" value="${test_url}"/>
         <property name="t" value="com.atguigu.server.TestServer"/>
     </bean>
 
-    <bean id="AddressServerInf" class="com.atguigu.utils.MyWsFactoryBean">
+    <bean id="addressServerInf" class="com.atguigu.utils.MyWsFactoryBean">
         <property name="url" value="${address_url}"/>
         <property name="t" value="com.atguigu.server.AddressServerInf"/>
     </bean>
+
+    <!--jsm消息工厂 -->
+    <bean id="targetConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+        <property name="brokerURL" value="tcp://localhost:61616" />
+    </bean>
+    <bean id="connectionFactory"
+          class="org.springframework.jms.connection.SingleConnectionFactory">
+        <!--产生JMS Connection的ConnectionFactory -->
+        <property name="targetConnectionFactory" ref="targetConnectionFactory" />
+    </bean>
+
+    <!-- 执行消息任务的模板 -->
+    <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <property name="connectionFactory" ref="connectionFactory" />
+    </bean>
+    <bean id="queueDestination" class="org.apache.activemq.command.ActiveMQQueue">
+        <constructor-arg value="queue" />
+    </bean>
+    <bean id="topicDestination" class="org.apache.activemq.command.ActiveMQTopic">
+        <constructor-arg value="topic" />
+    </bean>
+
 
 </beans>

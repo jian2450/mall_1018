@@ -1,9 +1,6 @@
 package com.atguigu.controller;
 
-import com.atguigu.bean.KEYWORDS_T_MALL_SKU;
-import com.atguigu.bean.MODEL_T_MALL_SKU_ATTR_VALUE;
-import com.atguigu.bean.OBJECT_T_MALL_ATTR;
-import com.atguigu.bean.OBJECT_T_MALL_SKU;
+import com.atguigu.bean.*;
 import com.atguigu.service.AttrService;
 import com.atguigu.service.ListService;
 import com.atguigu.utils.MyCacheUtil;
@@ -50,6 +47,12 @@ public class ListController {
         return "search";
     }
 
+    /**
+     * 分类编号检索商品列表
+     *
+     * @param flbh2
+     * @return list
+     */
     @RequestMapping("goto_list")
     public String goto_list(int flbh2, ModelMap map) {
         //flbh2属性的集合
@@ -68,6 +71,7 @@ public class ListController {
             list_sku = listService.get_list_by_flbh2(flbh2);
 
             //将检索结果同步到redis
+            MyCacheUtil.setKey(key,list_sku);
 
         }
 
@@ -75,21 +79,61 @@ public class ListController {
         map.put("list_sku", list_sku);
         map.put("flbh2", flbh2);
         return "list";
-
     }
 
-
+    /**
+     * 根据属性列表检索商品列表
+     *
+     * @param list_attr
+     * @param flbh2
+     * @return skulist
+     */
     @RequestMapping("get_list_by_attr")
     public String get_list_by_attr(MODEL_T_MALL_SKU_ATTR_VALUE list_attr, int flbh2, ModelMap map) {
 
-        //根据属性查询商品列表
-        List<OBJECT_T_MALL_SKU> list_sku = listService.get_list_by_attr(list_attr.getList_attr(), flbh2);
+        List<OBJECT_T_MALL_SKU> list_sku = new ArrayList<>();
 
         //缓存检索
-        String key = "";
+        List<T_MALL_SKU_ATTR_VALUE> list_attr1 = list_attr.getList_attr();
+        String[] keys = new String[list_attr1.size()];
+        for (int i = 0; i < list_attr1.size(); i++) {
+            keys[i] = "attr_" + flbh2 + "_" + list_attr1.get(i).getShxm_id() + "_" + list_attr1.get(i).getShxzh_id();
+        }
 
-        //mysql检索
+        //交叉检索，返回生成的key
+        String interKeys = MyCacheUtil.interKeys(keys);
+        list_sku = MyCacheUtil.getList(interKeys, OBJECT_T_MALL_SKU.class);
 
+        if (list_sku ==null || list_sku.size() < 1 ){
+            //mysql检索
+            list_sku = listService.get_list_by_attr(list_attr.getList_attr(),flbh2);
+
+            //同步redis
+            for (int i = 0; i < keys.length; i++) {
+                String key = keys[i]; //attr_28_1_2
+
+                //判断redis中是否存在
+                boolean if_key = MyCacheUtil.if_key(key);
+
+                if (!if_key){
+                    //根据属性id,查询出属性值集合
+                    //循环属性值，拼接出attr的key
+                    //key对应的sku集合
+                    List<T_MALL_SKU_ATTR_VALUE> list_attr_for_redis = new ArrayList<>();
+                    List<OBJECT_T_MALL_SKU> list_sku_for_redis = new ArrayList<>();
+                    T_MALL_SKU_ATTR_VALUE attr_value = new T_MALL_SKU_ATTR_VALUE();
+                    attr_value.setShxm_id(list_attr1.get(i).getShxm_id());
+                    attr_value.setShxzh_id(list_attr1.get(i).getShxzh_id());
+                    list_attr_for_redis.add(attr_value);
+                    list_sku_for_redis = listService.get_list_by_attr(list_attr_for_redis,flbh2);
+
+                    //再根据属性和属性值可以查询出对应的sku集合
+                    //attr的可以和sku的集合循环插入到redis
+                    MyCacheUtil.setKey(key,list_sku_for_redis);
+                }
+
+            }
+        }
 
         map.put("list_sku", list_sku);
         return "skuList";

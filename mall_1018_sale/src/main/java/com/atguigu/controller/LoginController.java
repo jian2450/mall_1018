@@ -7,8 +7,11 @@ import com.atguigu.server.LoginServer;
 import com.atguigu.server.TestServer;
 import com.atguigu.service.CartService;
 import com.atguigu.utils.MyJsonUtil;
+import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.core.MessageCreator;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -16,6 +19,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.Session;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -40,6 +46,12 @@ public class LoginController {
     @Autowired
     TestServer testServer;
 
+    @Autowired
+    JmsTemplate jmsTemplate;
+
+    @Autowired
+    ActiveMQQueue queueDestination;
+
     /**
      * 表单异步提交
      */
@@ -53,7 +65,7 @@ public class LoginController {
     @RequestMapping("login")
     public String goto_login(@CookieValue(value = "list_cart_cookie", required = false) String list_cart_cookie,
                              HttpServletResponse response, HttpSession session, T_MALL_USER_ACCOUNT user,
-                             @RequestParam(value = "redirect",required = false)String redirect, String dataSource_type, ModelMap map) {
+                             @RequestParam(value = "redirect", required = false) String redirect, String dataSource_type, ModelMap map) {
 
         T_MALL_USER_ACCOUNT select_user = new T_MALL_USER_ACCOUNT(); //loginMapper.select_user(user);
         String loginJson = "";
@@ -61,7 +73,7 @@ public class LoginController {
         //登陆，远程用户认证接口
         if (("1").equals(dataSource_type)) {
             loginJson = loginServer.login(user);
-            testServer.ping("hello");
+//            testServer.ping("hello");
         } else if (("2").equals(dataSource_type)) {
             loginJson = loginServer.login2(user);
         }
@@ -71,6 +83,18 @@ public class LoginController {
         if (select_user == null) {
             return "redirect:/login.do";
         } else {
+
+            //异步调用消息队列,发布日志的消息
+            //发送mq消息
+
+            final String message = select_user.getId() + "|" + select_user.getYh_mch() + "|登陆";
+            jmsTemplate.send(queueDestination, new MessageCreator() {
+                @Override
+                public Message createMessage(Session session) throws JMSException {
+                    return session.createTextMessage(message);
+                }
+            });
+
             session.setAttribute("user", select_user);
 
             //客户端存储客户的个性化信息，方便用户下次再访问网站时使用
@@ -96,10 +120,10 @@ public class LoginController {
 
         }
 
-        if (StringUtils.isBlank(redirect)){
+        if (StringUtils.isBlank(redirect)) {
             return "redirect:/index.do";
-        }else {
-            return "redirect:/"+redirect;
+        } else {
+            return "redirect:/" + redirect;
         }
 
     }

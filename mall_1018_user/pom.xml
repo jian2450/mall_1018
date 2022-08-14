@@ -46,44 +46,44 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>4.0.0.RELEASE</version>
+            <version>5.3.20</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>4.0.0.RELEASE</version>
+            <version>5.3.20</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
-            <version>4.0.0.RELEASE</version>
+            <version>5.3.20</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-orm</artifactId>
-            <version>4.0.0.RELEASE</version>
+            <version>5.3.20</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
-            <version>4.0.0.RELEASE</version>
+            <version>5.3.20</version>
         </dependency>
 
         <!-- spring容器事务  -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-tx</artifactId>
-            <version>4.0.0.RELEASE</version>
+            <version>5.3.20</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-aspects</artifactId>
-            <version>4.0.0.RELEASE</version>
+            <version>5.3.20</version>
         </dependency>
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
-            <version>1.6.8</version>
+            <version>1.9.6</version>
         </dependency>
         <dependency>
             <groupId>aopalliance</groupId>
@@ -140,8 +140,14 @@
         <dependency>
             <groupId>org.apache.ws.security</groupId>
             <artifactId>wss4j</artifactId>
-            <version>1.5.2</version>
+            <version>1.6.15</version>
         </dependency>
+
+<!--        <dependency>-->
+<!--            <groupId>org.apache.wss4j</groupId>-->
+<!--            <artifactId>wss4j-ws-security-common</artifactId>-->
+<!--            <version>2.1.7</version>-->
+<!--        </dependency>-->
 
         <!-- 6.rest -->
         <dependency>
